@@ -2,7 +2,7 @@
 
 Repo for my sql cmd utility written in Go
 
-This is 100% a work in progress and contains very bad code!
+This is 100% a work in progress and contains very bad code! It's just for me to play around with Go.
 
 This utility is designed to automate the frequent queries I run when testing SQL Server running in containers/kubernetes
 
