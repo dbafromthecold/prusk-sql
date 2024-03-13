@@ -23,14 +23,45 @@ func openDatabaseConnection() (*sql.DB, error) {
 	return conn, nil
 }
 
-func getSQLInstanceName(conn *sql.DB) {
-	// similar to original code, just ensure it's wrapped in a function
+func getSQLInstanceName(conn *sql.DB) (string, error) {
+	var instanceName string
+	err := conn.QueryRow("SELECT @@SERVERNAME").Scan(&instanceName)
+	if err != nil {
+		return "", err
+	}
+	return instanceName, nil
 }
 
-func getSQLVersion(conn *sql.DB) {
-	// similar to original code, just ensure it's wrapped in a function
+func getDatabases(conn *sql.DB) ([]string, error) {
+	rows, err := conn.Query("SELECT name FROM sys.databases")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var databases []string
+	for rows.Next() {
+		var databaseName string
+		err := rows.Scan(&databaseName)
+		if err != nil {
+			return nil, err
+		}
+		databases = append(databases, databaseName)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return databases, nil
 }
 
-func getDatabases(conn *sql.DB) {
-	// similar to original code, just ensure it's wrapped in a function
+func getSQLVersion(conn *sql.DB) (string, error) {
+	var version string
+	err := conn.QueryRow("SELECT @@VERSION").Scan(&version)
+	if err != nil {
+		return "", err
+	}
+	return version, nil
 }
+
