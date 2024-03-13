@@ -56,6 +56,44 @@ func getDatabases(conn *sql.DB) ([]string, error) {
 	return databases, nil
 }
 
+func runCustomQuery(conn *sql.DB, query string) ([]map[string]interface{}, error) {
+	rows, err := conn.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]map[string]interface{}, 0)
+	values := make([]interface{}, len(columns))
+	valuePtrs := make([]interface{}, len(columns))
+	for rows.Next() {
+		for i := range columns {
+			valuePtrs[i] = &values[i]
+		}
+		err := rows.Scan(valuePtrs...)
+		if err != nil {
+			return nil, err
+		}
+
+		rowData := make(map[string]interface{})
+		for i, col := range columns {
+			rowData[col] = values[i]
+		}
+		result = append(result, rowData)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func getSQLVersion(conn *sql.DB) (string, error) {
 	var version string
 	err := conn.QueryRow("SELECT @@VERSION").Scan(&version)
