@@ -3,7 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	//"log"
 	_ "github.com/microsoft/go-mssqldb"
 )
 
