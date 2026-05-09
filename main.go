@@ -152,40 +152,44 @@ func main() {
 			log.Fatal("Columns failed:", err.Error())
 		}
 
-		// Print column headers
-		for i, col := range columns {
-			if i > 0 {
-				fmt.Printf("\t")
-			}
-			fmt.Printf(col)
-		}
-		fmt.Printf("\n")
-
-		// Create slice to hold row values
-		values := make([]interface{}, len(columns))
-		scanArgs := make([]interface{}, len(values))
-		for i := range values {
-			scanArgs[i] = &values[i]
-		}
-
-		// Print rows
-		for rows.Next() {
-			err = rows.Scan(scanArgs...)
-			if err != nil {
-				log.Fatal("Scan failed:", err.Error())
-			}
-
-			for i, val := range values {
+		if len(columns) > 0 {
+			// Print column headers
+			for i, col := range columns {
 				if i > 0 {
 					fmt.Printf("\t")
 				}
-				if val != nil {
-					fmt.Printf("%v", val)
-				} else {
-					fmt.Printf("NULL")
-				}
+				fmt.Printf(col)
 			}
 			fmt.Printf("\n")
+
+			// Create slice to hold row values
+			values := make([]interface{}, len(columns))
+			scanArgs := make([]interface{}, len(values))
+			for i := range values {
+				scanArgs[i] = &values[i]
+			}
+
+			// Print rows
+			for rows.Next() {
+				err = rows.Scan(scanArgs...)
+				if err != nil {
+					log.Fatal("Scan failed:", err.Error())
+				}
+
+				for i, val := range values {
+					if i > 0 {
+						fmt.Printf("\t")
+					}
+					if val != nil {
+						fmt.Printf("%v", val)
+					} else {
+						fmt.Printf("NULL")
+					}
+				}
+				fmt.Printf("\n")
+			}
+		} else {
+			fmt.Printf("Query executed successfully.\n")
 		}
 
 		if err = rows.Err(); err != nil {
